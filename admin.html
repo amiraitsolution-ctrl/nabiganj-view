@@ -82,6 +82,32 @@ window.saveUserRole=async id=>{const roleValue=$('role-'+id).value;if(!confirm('
 auth();
 </script>
 <script>
+window.ensureNewsDb = async function () {
+  if (window.newsDb) return window.newsDb;
+  const SUPABASE_URL = 'https://nywlrdazdcybidlmfnmj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_tRHM7STxg015LYXM0eyvOw_qrApPqIq';
+  const createClient = () => {
+    const lib = window.supabase || window.supabaseJs;
+    if (!lib || typeof lib.createClient !== 'function') return null;
+    window.newsDb = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return window.newsDb;
+  };
+  let client = createClient();
+  if (client) return client;
+  const loadScript = src => new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('লাইব্রেরি লোড হয়নি'));
+    document.head.appendChild(script);
+  });
+  try { await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'); }
+  catch (_) { await loadScript('https://unpkg.com/@supabase/supabase-js@2'); }
+  client = createClient();
+  if (!client) throw new Error('Supabase লাইব্রেরি পাওয়া যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।');
+  return client;
+};
 
 window.loginNow = async function () {
   const email = (document.getElementById('email')?.value || '').trim();
@@ -95,8 +121,7 @@ window.loginNow = async function () {
   if (button) { button.disabled = true; button.textContent = 'লগইন যাচাই হচ্ছে…'; }
   if (box) { box.className = 'alert'; box.textContent = 'লগইন যাচাই করা হচ্ছে…'; box.classList.remove('hidden'); }
   try {
-    const client = window.newsDb;
-    if (!client) throw new Error('Supabase সংযোগ চালু হয়নি। পেজটি Reload করুন।');
+    const client = await window.ensureNewsDb();
     const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (!data || !data.session) throw new Error('লগইন সেশন তৈরি হয়নি।');
