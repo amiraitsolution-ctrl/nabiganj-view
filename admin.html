@@ -34,6 +34,7 @@
 </main></div>
 <script>
 const URL='https://nywlrdazdcybidlmfnmj.supabase.co',KEY='sb_publishable_tRHM7STxg015LYXM0eyvOw_qrApPqIq',db=supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
+window.newsDb = db;
 let user=null,role='',cats=[],locs=[],articles=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dateLocal=v=>v?new Date(v).toISOString().slice(0,16):'';
@@ -94,7 +95,9 @@ window.loginNow = async function () {
   if (button) { button.disabled = true; button.textContent = 'লগইন যাচাই হচ্ছে…'; }
   if (box) { box.className = 'alert'; box.textContent = 'লগইন যাচাই করা হচ্ছে…'; box.classList.remove('hidden'); }
   try {
-    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    const client = window.newsDb;
+    if (!client) throw new Error('Supabase সংযোগ চালু হয়নি। পেজটি Reload করুন।');
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (!data || !data.session) throw new Error('লগইন সেশন তৈরি হয়নি।');
     await auth();
@@ -117,7 +120,9 @@ window.forgotPasswordRecovery = async function () {
   const oldText = button ? button.textContent : '';
   if (button) { button.disabled = true; button.textContent = 'অনুরোধ পাঠানো হচ্ছে…'; }
   try {
-    const { error } = await db.auth.resetPasswordForEmail(email, {
+    const client = window.newsDb;
+    if (!client) throw new Error('Supabase সংযোগ চালু হয়নি। পেজটি Reload করুন।');
+    const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: 'https://nabiganj-view.onrender.com/admin.html'
     });
     if (error) throw error;
