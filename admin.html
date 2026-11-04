@@ -145,8 +145,7 @@ window.forgotPasswordRecovery = async function () {
   const oldText = button ? button.textContent : '';
   if (button) { button.disabled = true; button.textContent = 'অনুরোধ পাঠানো হচ্ছে…'; }
   try {
-    const client = window.newsDb;
-    if (!client) throw new Error('Supabase সংযোগ চালু হয়নি। পেজটি Reload করুন।');
+    const client = await window.ensureNewsDb();
     const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: 'https://nabiganj-view.onrender.com/admin.html'
     });
