@@ -34,7 +34,7 @@ The public portal shows short summaries, source attribution, and links to origin
 ## Newsroom roles
 Roles are assigned only through trusted Supabase Auth app_metadata (never user_metadata):
 - super_admin: full access including advertising and site settings.
-- admin: newsroom administration and user management permissions where implemented.
+- admin: newsroom administration; role assignment is not yet exposed in the dashboard and must be done securely through Supabase Auth.
 - editor: edit, publish, breaking ticker, comments and newsroom operations.
 - reporter: create and edit own stories, upload media, use AI editor.
 - moderator: comment/report moderation.
